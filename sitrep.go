@@ -4,12 +4,17 @@ import (
     "github.com/ant0ine/go-json-rest/rest"
     _ "github.com/go-sql-driver/mysql"
     "github.com/jinzhu/gorm"
+    "gopkg.in/yaml.v2"
     "log"
     "net/http"
     "time"
+    "os"
+    "fmt"
 )
 
 func main() {
+
+    cfg := LoadConfig("sitrep.cfg")
 
     i := Impl{}
     i.InitDB("")
@@ -83,6 +88,34 @@ type ReportSeverity struct {
 
 type Impl struct {
     DB *gorm.DB
+}
+
+
+func (string) LoadConfig(cfg_file string) {
+    file, err := os.Open(cfg_file)
+    if err != nil {
+        log.Fatalf("Error: %v", err)
+    }
+    defer file.Close()
+
+    stat, err := file.Stat()
+    if err != nil {
+        log.Fatalf("Error: %v", err)
+    }
+
+    bs := make([]byte, stat.Size())
+    _, err = file.Read(bs)
+    if err != nil {
+        log.Fatalf("Error: %v", err)
+    }
+
+    str_cfg := string(bs)
+    m := make(map[interface{}]interface{})
+    err = yaml.Unmarshal([]byte(str_cfg), &m)
+    if err != nil {
+            log.Fatalf("error: %v", err)
+    }
+    fmt.Printf("--- m:\n%v\n\n", m)
 }
 
 func (i *Impl) InitDB(cxn string) {
