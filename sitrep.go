@@ -12,22 +12,30 @@ import (
     "fmt"
 )
 
+const version string = "0.13"
+
 func main() {
+
+    fmt.Println("Situation Report Daemon v", version)
 
     cfg := LoadConfig("sitrep.cfg")
 
     i := Impl{}
-    i.InitDB("")
-    //i.InitSchema()   // Don't do this, the database is already in place.
+    i.InitDB(cfg)
+    i.InitSchema()
 
     api := rest.NewApi()
     api.Use(rest.DefaultDevStack...)
+
     router, err := rest.MakeRouter(
-        rest.Get("/reminders", i.GetAllReminders),
-        rest.Post("/reminders", i.PostReminder),
-        rest.Get("/reminders/:id", i.GetReminder),
-        rest.Put("/reminders/:id", i.PutReminder),
-        rest.Delete("/reminders/:id", i.DeleteReminder),
+        rest.Get("/alertlog", i.GetAlertLog),
+        rest.Get("/alertcomment", i.GetAlertComment),
+        rest.Get("/admins", i.GetAllAdmins),
+        rest.Get("/oncallreport", i.GetOncallReport),
+        rest.Get("/reportaction", i.GetReportAction),
+        rest.Get("/reportimprovement", i.GetReportImprovement),
+        rest.Get("/reportseverity", i.GetReportSeverity),
+        rest.Get("/version", i.GetVersion),
     )
     if err != nil {
         log.Fatal(err)
@@ -36,54 +44,7 @@ func main() {
     log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
 }
 
-type Admin struct {
-    Id          int64           `json:"id"`
-    Login       string          `sql:"size 50" json:"login"`
-    IsActive    bool            `json:"is_active"`
-}
 
-/* This is the table that needs to be denormalised to data to be returned to client.
-type AlertsComment struct {
-| alert_id       | int(10) unsigned | NO   | PRI | NULL    |       |
-| action_id      | int(10) unsigned | NO   |     | 1       |       |
-| improvement_id | int(10) unsigned | NO   |     | 1       |       |
-| severity_id    | int(10) unsigned | NO   |     | 1       |       |
-| note           | varchar(500)     | YES  |     |         |       |
-| admin_id       | int(10) unsigned | YES  |     | NULL    |       |
-| spent          | int(10) unsigned | YES  |     | NULL    |       |
-}
-*/
-
-type AlertsLog struct {
-    Id          int64       `json:"id"`
-    AlertDate   int64       `json:"alert_date"`
-    Host        string      `sql:"size 50" json:"host"`
-    Service     string      `sql:"size 100" json:"service"`
-    Status      string      `sql:"size 50" json:"status"`
-    Output      string      `sql:"size 500" json:"output"`
-}
-
-type OncallReport struct {
-    Id          int64       `json:"id"`
-    DateStart   time.Time   `json:"date_start"`
-    DateEnd     time.Time   `json:"date_end"`
-    Comment     string      `sql:"size 500" json:"comment"`
-}
-
-type ReportAction struct {
-    Id          int64       `json:"id"`
-    Action      string      `sql:"size 30" json:"action"`
-}
-
-type ReportImprovement struct {
-    Id          int64       `json:"id"`
-    Improvement string      `sql:"size 30" json:"improvement"`
-}
-
-type ReportSeverity struct {
-    Id          int64       `json:"id"`
-    Severity    string      `sql:"size 30" json:"severity"`
-}
 
 
 type Impl struct {
@@ -91,7 +52,7 @@ type Impl struct {
 }
 
 
-func (string) LoadConfig(cfg_file string) {
+func LoadConfig(cfg_file string) string {
     file, err := os.Open(cfg_file)
     if err != nil {
         log.Fatalf("Error: %v", err)
@@ -115,7 +76,9 @@ func (string) LoadConfig(cfg_file string) {
     if err != nil {
             log.Fatalf("error: %v", err)
     }
-    fmt.Printf("--- m:\n%v\n\n", m)
+
+    // Type assertion required
+    return m["mysql"].(string)
 }
 
 func (i *Impl) InitDB(cxn string) {
@@ -127,74 +90,142 @@ func (i *Impl) InitDB(cxn string) {
     i.DB.LogMode(true)
 }
 
+func SyncTables() {
+/*
+ * PSEUDO CODE
+ * set current date/time
+ * set last alert to the last record in alert_logs table.
+ * fetch all records of type SERVICE NOTIFICATION and HOST NOTIFICATION older than last alert and current date/time.
+ * update alert_log table
+*/
+}
+
 
 func (i *Impl) InitSchema() {
-    i.DB.AutoMigrate(&Reminder{})
+    //i.DB.AutoMigrate()        // Don't init, the database schema is managed by the DBA.
 }
 
-func (i *Impl) GetAllReminders(w rest.ResponseWriter, r *rest.Request) {
-    reminders := []Reminder{}
-    i.DB.Find(&reminders)
-    w.WriteJson(&reminders)
+
+func (i *Impl) GetVersion(w rest.ResponseWriter, r *rest.Request) {
+    w.WriteJson(version)
 }
 
-func (i *Impl) GetReminder(w rest.ResponseWriter, r *rest.Request) {
-    id := r.PathParam("id")
-    reminder := Reminder{}
-    if i.DB.First(&reminder, id).Error != nil {
-        rest.NotFound(w, r)
-        return
-    }
-    w.WriteJson(&reminder)
+
+// ============================= ADMINS ======================================
+type Admin struct {
+    Id          int64       `gorm:"column:admin_id" json:"id"`
+    Login       string      `gorm:"column:login" sql:"size 50" json:"login"`
+    IsActive    bool        `gorm:"column:is_active" json:"is_active"`
+}
+func (a Admin) TableName() string {
+    return "admin"
 }
 
-func (i *Impl) PostReminder(w rest.ResponseWriter, r *rest.Request) {
-    reminder := Reminder{}
-    if err := r.DecodeJsonPayload(&reminder); err != nil {
-        rest.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-    if err := i.DB.Save(&reminder).Error; err != nil {
-        rest.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-    w.WriteJson(&reminder)
+func (i *Impl) GetAllAdmins(w rest.ResponseWriter, r *rest.Request) {
+    admins := []Admin{}
+    i.DB.Find(&admins)
+    w.WriteJson(&admins)
 }
 
-func (i *Impl) PutReminder(w rest.ResponseWriter, r *rest.Request) {
 
-    id := r.PathParam("id")
-    reminder := Reminder{}
-    if i.DB.First(&reminder, id).Error != nil {
-        rest.NotFound(w, r)
-        return
-    }
-
-    updated := Reminder{}
-    if err := r.DecodeJsonPayload(&updated); err != nil {
-        rest.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-
-    reminder.Message = updated.Message
-
-    if err := i.DB.Save(&reminder).Error; err != nil {
-        rest.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-    w.WriteJson(&reminder)
+// ============================= ALERT LOG ======================================
+type AlertLog struct {
+    Id          int64       `gorm:"column:alert_id" json:"id"`
+    AlertDate   int64       `gorm:"column:alert_date" json:"alert_date"`
+    Host        string      `gorm:"column:host" sql:"size 50" json:"host"`
+    Service     string      `gorm:"column:service" sql:"size 100" json:"service"`
+    Status      string      `gorm:"column:status" sql:"size 50" json:"status"`
+    Output      string      `gorm:"column:output" sql:"size 500" json:"output"`
+}
+func (a AlertLog) TableName() string {
+    return "alerts_log"
+}
+func (i *Impl) GetAlertLog (w rest.ResponseWriter, r *rest.Request) {
+    alert_log := []AlertLog{}
+    i.DB.Find(&alert_log)
+    w.WriteJson(&alert_log)
 }
 
-func (i *Impl) DeleteReminder(w rest.ResponseWriter, r *rest.Request) {
-    id := r.PathParam("id")
-    reminder := Reminder{}
-    if i.DB.First(&reminder, id).Error != nil {
-        rest.NotFound(w, r)
-        return
-    }
-    if err := i.DB.Delete(&reminder).Error; err != nil {
-        rest.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-    w.WriteHeader(http.StatusOK)
+
+// ============================= ONCALL REPORT ======================================
+type OncallReport struct {
+    Id          int64       `gorm:"column:report_id" json:"id"`
+    DateStart   time.Time   `gorm:"column:date_start" json:"date_start"`
+    DateEnd     time.Time   `gorm:"column:date_end" json:"date_end"`
+    Comment     string      `gorm:"column:comment" sql:"size 500" json:"comment"`
 }
+func (a OncallReport) TableName() string {
+    return "oncall_report"
+}
+func (i *Impl) GetOncallReport (w rest.ResponseWriter, r *rest.Request) {
+    oncall_report := []OncallReport{}
+    i.DB.Find(&oncall_report)
+    w.WriteJson(&oncall_report)
+}
+
+
+// ============================= REPORT ACTION ======================================
+type ReportAction struct {
+    Id          int64       `gorm:"column:action_id" json:"id"`
+    Action      string      `gorm:"column:action" sql:"size 30" json:"action"`
+}
+func (a ReportAction) TableName() string {
+    return "report_action"
+}
+func (i *Impl) GetReportAction (w rest.ResponseWriter, r *rest.Request) {
+    report_action := []ReportAction{}
+    i.DB.Find(&report_action)
+    w.WriteJson(&report_action)
+}
+
+
+// ============================= ALERT COMMENT ======================================
+type AlertComment struct {
+    Id              int64   `gorm:"column:alert_id" json:"id"`
+    ActionId        int64   `gorm:"column:action_id" json:"action_id"`
+    ImprovementId   int64   `gorm:"column:improvement_id" json:"improvement_id"`
+    SeverityId      int64   `gorm:"column:severity_id" json:"severity_id"`
+    Note            string  `gorm:"column:note" sql:"size 500" json:"note"`
+    AdminId         int64   `gorm:"column:admin_id" json:"admin_id"`
+    TimeSpent       int64   `gorm:"column:spent" json:"time_spent"`
+}
+func (a AlertComment) TableName() string {
+    return "alerts_comment"
+}
+
+func (i *Impl) GetAlertComment (w rest.ResponseWriter, r *rest.Request) {
+    report_comment := []AlertComment{}
+    i.DB.Find(&report_comment)
+    w.WriteJson(&report_comment)
+}
+
+
+// ============================= REPORT IMPROVEMENT ======================================
+type ReportImprovement struct {
+    Id          int64       `gorm:"column:improvement_id" json:"id"`
+    Improvement string      `gorm:"column:improvement" sql:"size 30" json:"improvement"`
+}
+func (a ReportImprovement) TableName() string {
+    return "report_improvement"
+}
+func (i *Impl) GetReportImprovement (w rest.ResponseWriter, r *rest.Request) {
+    report_improvement := []ReportImprovement{}
+    i.DB.Find(&report_improvement)
+    w.WriteJson(&report_improvement)
+}
+
+
+// ============================= REPORT SEVERITY ======================================
+type ReportSeverity struct {
+    Id          int64       `gorm:"column:severity_id" json:"id"`
+    Severity    string      `gorm:"column:severity" sql:"size 30" json:"severity"`
+}
+func (a ReportSeverity) TableName() string {
+    return "report_severity"
+}
+func (i *Impl) GetReportSeverity (w rest.ResponseWriter, r *rest.Request) {
+    report_severity := []ReportSeverity{}
+    i.DB.Find(&report_severity)
+    w.WriteJson(&report_severity)
+}
+

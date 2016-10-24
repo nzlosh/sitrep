@@ -1,0 +1,103 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/png" href="/favicon.png">
+        <link rel="stylesheet" type="text/css" href="semantic.min.css">
+        <script src="jquery-3.1.0.js"></script>
+        <script src="semantic.min.js"></script>
+    </head>
+
+    <body>
+        <div class="ui container">
+
+            <div class="ui inverted segment">
+              <div class="ui inverted secondary pointing menu"> <!-- header start -->
+                <h2 class="ui inverted header">
+                <img class="ui avatar image" src="images/logo.png"><div class="content">Situation Report UI <div class="sub header" id="app_version">v0.12</div></div>
+                </h2>
+                <a class="item" data-tab="annotation">Annotation</a>
+                <a class="item" data-tab="review">Review</a>
+                <a class="item" data-tab="statistics">Statistics</a>
+
+                <div class="ui dropdown item right aligned" data-action="get admins" > <!-- admins dropdown start -->
+                    Person <i class="dropdown icon"></i>
+                    <div class="menu" id="admin_menu">
+
+                    </div>
+                </div> <!-- admins dropdown end -->
+              </div> <!-- header end -->
+            </div> <!-- segment -->
+
+        <div class="ui tab" data-tab="annotation">
+            The annotation Tab
+        </div> <!-- annotation tab -->
+
+
+
+        <div class="ui tab" data-tab="review">
+
+              <div class="ui container"> <!-- calendar start -->
+
+              <div class="ui calendar" id="start_date">
+                <div class="ui input left icon">
+                  <i class="calendar icon"></i>
+                  <input type="text" placeholder="Date/Time">
+                </div>
+              </div>
+
+              <div class="ui calendar" id="end_date">
+                <div class="ui input left icon">
+                  <i class="calendar icon"></i>
+                  <input type="text" placeholder="Date/Time">
+                </div>
+              </div>
+
+              </div> <!-- calendar end -->
+
+            <div class="ui four column grid">
+                <div class="row">
+                    <div class="sixteen wide column">
+                        <table class="ui celled table">
+                          <thead>
+                            <tr>
+                              <th>Date/Time</th>
+                              <th>Host</th>
+                              <th>Service</th>
+                              <th>State</th>
+                              <th>Output</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr class="active">
+                              <td>2016-10-31 21:30Z</td>
+                              <td>hostname-02</td>
+                              <td>HTTP::Service status</td>
+                              <td class="error"><div class="ui red label"><i class="attention icon"></i>Critical</div></td>
+                              <td>Connection refused</td>
+                            </tr>
+                            <tr>
+                              <td>2016-10-31 21:35Z</td>
+                              <td>hostname-01</td>
+                              <td>HTTP::Service status</td>
+                              <td class="error"><div class="ui red label"><i class="attention icon"></i>Critical</div></td>
+                              <td>Connection refused</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> <!-- Grid -->
+
+        </div> <!-- review tab -->
+
+        <div class="ui tab" data-tab="statistics">
+            The Statistics Tab
+        </div> <!-- statistics tab -->
+
+        Favourite icon source from https://icons8.com
+        </div> <!-- ui container -->
+
+        <script src="sitrep.js"></script>
+
+    </body>
+</html>
