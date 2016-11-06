@@ -3,8 +3,11 @@
         <meta charset="utf-8" />
         <link rel="icon" type="image/png" href="/favicon.png">
         <link rel="stylesheet" type="text/css" href="semantic.min.css">
+        <link rel="stylesheet" type="text/css" href="cal-heatmap.css">
         <script src="jquery-3.1.0.js"></script>
         <script src="semantic.min.js"></script>
+        <script src="d3.v3.min.js"></script>
+        <script src="cal-heatmap.min.js"></script>
     </head>
 
     <body>
@@ -36,22 +39,28 @@
 
         <div class="ui tab" data-tab="review">
 
-              <div class="ui container"> <!-- calendar start -->
-
-              <div class="ui calendar" id="start_date">
-                <div class="ui input left icon">
-                  <i class="calendar icon"></i>
-                  <input type="text" placeholder="Date/Time">
-                </div>
-              </div>
-
-              <div class="ui calendar" id="end_date">
-                <div class="ui input left icon">
-                  <i class="calendar icon"></i>
-                  <input type="text" placeholder="Date/Time">
-                </div>
-              </div>
-
+              <div class="ui form"> <!-- calendar start -->
+                <div class="fields"> <!-- date fields start -->
+                  <div class="field">
+                    <div class="ui calendar" id="start_date">
+                      <div class="ui input left icon">
+                        <i class="calendar icon"></i>
+                        <input type="text" placeholder="Start Date/Time">
+                      </div>
+                    </div>
+                  </div>
+                   <div class="field">
+                    <div class="ui calendar" id="end_date">
+                      <div class="ui input left icon">
+                        <i class="calendar icon"></i>
+                        <input type="text" placeholder="End Date/Time">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <button class="ui button" id="load_alertlog">Load Alerts</button>
+                  </div>
+                </div> <!-- fields end -->
               </div> <!-- calendar end -->
 
             <div class="ui four column grid">
@@ -67,22 +76,38 @@
                               <th>Output</th>
                             </tr>
                           </thead>
-                          <tbody>
-                            <tr class="active">
-                              <td>2016-10-31 21:30Z</td>
-                              <td>hostname-02</td>
-                              <td>HTTP::Service status</td>
-                              <td class="error"><div class="ui red label"><i class="attention icon"></i>Critical</div></td>
-                              <td>Connection refused</td>
-                            </tr>
-                            <tr>
-                              <td>2016-10-31 21:35Z</td>
-                              <td>hostname-01</td>
-                              <td>HTTP::Service status</td>
-                              <td class="error"><div class="ui red label"><i class="attention icon"></i>Critical</div></td>
-                              <td>Connection refused</td>
-                            </tr>
+                          <tbody id="review_table">
                           </tbody>
+                          <tfoot>
+                            <tr>
+                              <th colspan="5">
+                                <div class="ui right floated pagination menu">
+                                  <a class="icon item">
+                                    <i class="left chevron icon"></i>
+                                  </a>
+                                  <a class="item">1</a>
+                                  <a class="item">2</a>
+                                  <a class="item">3</a>
+                                  <a class="item">4</a>
+                                  <a class="icon item">
+                                    <i class="right chevron icon"></i>
+                                  </a>
+                                </div>
+                                <div class="field">
+                                  <select class="ui fluid search dropdown" name="card[expire-month]">
+                                    <option value=""># of items</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="250">250</option>
+                                    <option value="500">500</option>
+                                    <option value="all">all</option>
+                                  </select>
+                                </div>
+                              </th>
+                            </tr>
+                          </tfoot>
                         </table>
                     </div>
                 </div>
@@ -92,6 +117,12 @@
 
         <div class="ui tab" data-tab="statistics">
             The Statistics Tab
+            <div class="progress input-xxlarge">
+                <div style="width: 0.07%;" class="bar bar-"></div>
+                <div style="width: 89.7%;" class="bar bar-danger"></div>
+                <div style="width: 10.22%;" class="bar bar-"></div>
+            </div>
+            Pewet!
         </div> <!-- statistics tab -->
 
         Favourite icon source from https://icons8.com
