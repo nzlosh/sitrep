@@ -1,6 +1,7 @@
 # Situation Report (SitRep)
 A web application to help track Shinken alerts and administrator activities to resolve them.
 
+![screenshot](screenshot.png)
 
 ## Project Status
 This project is currently a work in progress.
@@ -41,7 +42,7 @@ The web application requires access to SitRep daemon REST API.
 
 
 ## Legal
-Thanks to https://icons8.com for the use of their icon
+Thanks to https://icons8.com for the use of their icon ![icon](webui/favicon.png)
 
 
 ## License
