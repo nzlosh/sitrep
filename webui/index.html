@@ -12,123 +12,25 @@
 
     <body>
         <div class="ui container">
-
-            <div class="ui inverted segment">
-              <div class="ui inverted secondary pointing menu"> <!-- header start -->
-                <h2 class="ui inverted header">
-                <img class="ui avatar image" src="images/logo.png"><div class="content">Situation Report UI <div class="sub header" id="app_version">v0.12</div></div>
-                </h2>
-                <a class="item" data-tab="annotation">Annotation</a>
-                <a class="item" data-tab="review">Review</a>
-                <a class="item" data-tab="statistics">Statistics</a>
-
-                <div class="ui dropdown item right aligned" data-action="get admins" > <!-- admins dropdown start -->
-                    Person <i class="dropdown icon"></i>
-                    <div class="menu" id="admin_menu">
-
-                    </div>
-                </div> <!-- admins dropdown end -->
-              </div> <!-- header end -->
-            </div> <!-- segment -->
-
-        <div class="ui tab" data-tab="annotation">
-            The annotation Tab
-        </div> <!-- annotation tab -->
-
-
-
-        <div class="ui tab" data-tab="review">
-
-              <div class="ui form"> <!-- calendar start -->
-                <div class="fields"> <!-- date fields start -->
-                  <div class="field">
-                    <div class="ui calendar" id="start_date">
-                      <div class="ui input left icon">
-                        <i class="calendar icon"></i>
-                        <input type="text" placeholder="Start Date/Time">
-                      </div>
-                    </div>
-                  </div>
-                   <div class="field">
-                    <div class="ui calendar" id="end_date">
-                      <div class="ui input left icon">
-                        <i class="calendar icon"></i>
-                        <input type="text" placeholder="End Date/Time">
-                      </div>
-                    </div>
-                  </div>
-                  <div class="field">
-                    <button class="ui button" id="load_alertlog">Load Alerts</button>
-                  </div>
-                </div> <!-- fields end -->
-              </div> <!-- calendar end -->
-
-            <div class="ui four column grid">
-                <div class="row">
-                    <div class="sixteen wide column">
-                        <table class="ui celled table">
-                          <thead>
-                            <tr>
-                              <th>Date/Time</th>
-                              <th>Host</th>
-                              <th>Service</th>
-                              <th>State</th>
-                              <th>Output</th>
-                            </tr>
-                          </thead>
-                          <tbody id="review_table">
-                          </tbody>
-                          <tfoot>
-                            <tr>
-                              <th colspan="5">
-                                <div class="ui right floated pagination menu">
-                                  <a class="icon item">
-                                    <i class="left chevron icon"></i>
-                                  </a>
-                                  <a class="item">1</a>
-                                  <a class="item">2</a>
-                                  <a class="item">3</a>
-                                  <a class="item">4</a>
-                                  <a class="icon item">
-                                    <i class="right chevron icon"></i>
-                                  </a>
-                                </div>
-                                <div class="field">
-                                  <select class="ui fluid search dropdown" name="card[expire-month]">
-                                    <option value=""># of items</option>
-                                    <option value="10">10</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                    <option value="100">100</option>
-                                    <option value="250">250</option>
-                                    <option value="500">500</option>
-                                    <option value="all">all</option>
-                                  </select>
-                                </div>
-                              </th>
-                            </tr>
-                          </tfoot>
-                        </table>
-                    </div>
+            <div class="ui middle align center align grid">
+                <div class="three wide column">
+                    <img class="ui image" src="/sitrep_logo.png">
                 </div>
-            </div> <!-- Grid -->
-
-        </div> <!-- review tab -->
-
-        <div class="ui tab" data-tab="statistics">
-            The Statistics Tab
-            <div class="progress input-xxlarge">
-                <div style="width: 0.07%;" class="bar bar-"></div>
-                <div style="width: 89.7%;" class="bar bar-danger"></div>
-                <div style="width: 10.22%;" class="bar bar-"></div>
-            </div>
-            Pewet!
-        </div> <!-- statistics tab -->
-
-        Favourite icon source from https://icons8.com
-        </div> <!-- ui container -->
-
-        <script src="sitrep.js"></script>
-
+                <div class="four wide column">
+                    <form method="POST" class="ui large form">
+                    <div class="field">
+                        <label>Username</label>
+                        <input name="username" type="text">
+                    </div>
+                    <div class="field">
+                        <label>Password</label>
+                        <input name="password" type="password">
+                    </div>
+                    <button class="ui submit button">Login</button>
+                    </form>
+                </div>
+            </div><!-- end middle grid -->
+        </div> <!-- container -->
+        <script src="login.js"></script>
     </body>
 </html>
